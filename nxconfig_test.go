@@ -2,6 +2,7 @@ package nxconfig
 
 import (
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/require"
 )
@@ -12,6 +13,7 @@ func TestLoadFromEnv(t *testing.T) {
 		Int       int
 		UInt      uint
 		NotMapped float64
+		Duration  time.Duration
 		Nested    struct {
 			Float float32
 			Str2  string
@@ -23,6 +25,7 @@ func TestLoadFromEnv(t *testing.T) {
 		Int:       -910,
 		UInt:      10,
 		NotMapped: 0.0,
+		Duration:  time.Hour * 2,
 		Nested: struct {
 			Float float32
 			Str2  string
@@ -35,6 +38,7 @@ func TestLoadFromEnv(t *testing.T) {
 		"STR=foo",
 		"INT=-910",
 		"U_INT=10",
+		"DURATION=2h",
 		"NESTED_FLOAT=3.49",
 		"NESTED_STR2=bar",
 	}))
@@ -90,6 +94,7 @@ func TestLoadFromArgs(t *testing.T) {
 		Int       int
 		UInt      uint
 		NotMapped float64
+		Duration  time.Duration
 		Nested    struct {
 			Float float32
 			Str2  string
@@ -101,6 +106,7 @@ func TestLoadFromArgs(t *testing.T) {
 		Int:       -910,
 		UInt:      10,
 		NotMapped: 0.0,
+		Duration:  time.Minute * 5,
 		Nested: struct {
 			Float float32
 			Str2  string
@@ -113,6 +119,7 @@ func TestLoadFromArgs(t *testing.T) {
 		"--str", "foo",
 		"--int=-910",
 		"--u-int", "10",
+		"--duration", "5m",
 		"--nested-float", "3.49",
 		"--nested-str2", "bar",
 	}))

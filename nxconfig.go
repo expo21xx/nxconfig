@@ -19,7 +19,7 @@ var ErrTargetNotAPointer = errors.New("target must be pointer")
 // ErrTargetNotAStruct is returned if the target passed to Load* is not pointer to a struct type.
 var ErrTargetNotAStruct = errors.New("target must be struct pointer")
 
-var durationKind = reflect.ValueOf(time.Duration(0)).Kind()
+var durationType = reflect.ValueOf(time.Duration(0)).Type()
 
 const tagkey = "nxconfig"
 
@@ -116,6 +116,12 @@ func flagForValue(flagset *pflag.FlagSet, envmap map[string]string, val reflect.
 		return err
 	}
 
+	switch val.Type() {
+	case durationType:
+		flagset.DurationVar(val.Addr().Interface().(*time.Duration), flagName, defValue.(time.Duration), name)
+		return nil
+	}
+
 	switch val.Type().Kind() {
 	case reflect.String:
 		flagset.StringVar(val.Addr().Interface().(*string), flagName, defValue.(string), name)
@@ -139,8 +145,6 @@ func flagForValue(flagset *pflag.FlagSet, envmap map[string]string, val reflect.
 		flagset.Float64Var(val.Addr().Interface().(*float64), flagName, defValue.(float64), name)
 	case reflect.Bool:
 		flagset.BoolVar(val.Addr().Interface().(*bool), flagName, defValue.(bool), name)
-	case durationKind:
-		flagset.DurationVar(val.Addr().Interface().(*time.Duration), flagName, defValue.(time.Duration), name)
 	}
 
 	return nil
@@ -153,6 +157,14 @@ func envValueForValue(env map[string]string, val reflect.Value, name string) (in
 }
 
 func convertFromStr(in string, typ reflect.Type) (interface{}, error) {
+	switch typ {
+	case durationType:
+		if in == "" {
+			return time.Duration(0), nil
+		}
+		return time.ParseDuration(in)
+	}
+
 	switch typ.Kind() {
 	case reflect.String:
 		return in, nil
@@ -209,11 +221,6 @@ func convertFromStr(in string, typ reflect.Type) (interface{}, error) {
 			return false, nil
 		}
 		return strconv.ParseBool(in)
-	case durationKind:
-		if in == "" {
-			return time.Duration(0), nil
-		}
-		return time.ParseDuration(in)
 	}
 
 	return nil, fmt.Errorf("don't know how to convert %v", typ.Name())
