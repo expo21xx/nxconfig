@@ -1,6 +1,6 @@
 # NX Config (Go)
 
-[GoDoc](https://godoc.org/github.com/expo21xx/nxconfig?status.svg)](http://godoc.org/github.com/expo21xx/nxconfig)
+[![GoDoc](https://godoc.org/github.com/expo21xx/nxconfig?status.svg)](http://godoc.org/github.com/expo21xx/nxconfig)
 
 NX Config can be used to map environment variables and flags to struct values.
 Using reflection (exported) struct field names. Nested structs will be prefixed with the field name.
