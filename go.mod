@@ -1,4 +1,4 @@
-module nxconfig
+module github.com/expo21xx/nxconfig
 
 go 1.15
 
