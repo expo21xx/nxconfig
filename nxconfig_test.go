@@ -207,6 +207,47 @@ func TestLoadUnexpoprted(t *testing.T) {
 	require.Equal(t, expected, input)
 }
 
+func TestLoadStructTags(t *testing.T) {
+	type cfg struct {
+		Str       string
+		Int       int `nxconfig:"Different"`
+		UInt      uint
+		NotMapped float64
+		Nested    struct {
+			Float float32
+			Str2  string `nxconfig:"NoLongerNested"`
+		}
+	}
+
+	expected := cfg{
+		Str:       "foo",
+		Int:       -910,
+		UInt:      10,
+		NotMapped: 0.0,
+		Nested: struct {
+			Float float32
+			Str2  string `nxconfig:"NoLongerNested"`
+		}{3.49, "bar"},
+	}
+
+	var input cfg
+
+	err := Load(&input, WithArgs([]string{
+		"--different", "-910",
+		"--str", "foo",
+		"--override", "baz",
+		"--no-longer-nested", "bar",
+	}), WithEnv([]string{
+		"U_INT=10",
+		"NESTED_FLOAT=3.49",
+	}))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	require.Equal(t, expected, input)
+}
+
 func TestToKebabCase(t *testing.T) {
 	tt := []struct {
 		input  string

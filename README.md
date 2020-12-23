@@ -26,7 +26,7 @@ type PGConfig struct {
     Port uint16
     Username string
     Password string
-    Timeout time.Duration
+    Timeout time.Duration `nxconfig:"connection-timeout"`
 }
 
 func main() {

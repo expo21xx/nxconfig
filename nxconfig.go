@@ -21,6 +21,8 @@ var ErrTargetNotAStruct = errors.New("target must be struct pointer")
 
 var durationKind = reflect.ValueOf(time.Duration(0)).Kind()
 
+const tagkey = "nxconfig"
+
 // Load config values automatically from os.Environ() (no prefix) and os.Args[1:].
 func Load(target interface{}, opts ...Option) error {
 	options := options{
@@ -83,6 +85,11 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 		}
 
 		name := fieldPrefix + elemType.Field(i).Name
+
+		tag, ok := elemType.Field(i).Tag.Lookup(tagkey)
+		if ok {
+			name = tag
+		}
 
 		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Struct {
 			err := loadIntoStruct(flagset, envmap, name, field.Addr())
