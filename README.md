@@ -61,6 +61,12 @@ nxconfig.Load(&target, nxconfig.WithFlagSet(myflagset))
 NOTE: `Load` will call `flagset.Parse()` with the arguments it was passed, either with `WithArgs` or `os.Args[1:]` if not.
 
 
+## Struct Tags:
+
+- `name`: name in PascalCase (overrides automatic inferring). NOTE: Use an empty `""` to not export the field.
+- `default`: default value
+- `usage`: usage string to print when `--help` flag is passed
+
 ## Supported Types
 
 The currently supported types are:
