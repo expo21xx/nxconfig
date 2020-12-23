@@ -18,15 +18,15 @@ import (
 type Config struct {
     Host string
     Port uint16
-    PGConfig PGConfig
+    PGConfig PGConfig `name:"PG"`
 }
 
 type PGConfig struct {
-    Host string
-    Port uint16
-    Username string
+    Host string `default:"localhost"`
+    Port uint16 `default:"5432"`
+    Username string `usage:"postgres username"`
     Password string
-    Timeout time.Duration `nxconfig:"connection-timeout"`
+    Timeout time.Duration `name:"connection-timeout"`
 }
 
 func main() {

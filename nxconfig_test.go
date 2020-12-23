@@ -217,12 +217,12 @@ func TestLoadUnexpoprted(t *testing.T) {
 func TestLoadStructTags(t *testing.T) {
 	type cfg struct {
 		Str       string
-		Int       int `nxconfig:"Different"`
+		Int       int `name:"Different"`
 		UInt      uint
-		NotMapped float64
+		NotMapped float64 `default:"89.7"`
 		Nested    struct {
-			Float float32
-			Str2  string `nxconfig:"NoLongerNested"`
+			Float float32 `default:"789.9"`
+			Str2  string  `name:"NoLongerNested"`
 		}
 	}
 
@@ -230,10 +230,10 @@ func TestLoadStructTags(t *testing.T) {
 		Str:       "foo",
 		Int:       -910,
 		UInt:      10,
-		NotMapped: 0.0,
+		NotMapped: 89.7,
 		Nested: struct {
-			Float float32
-			Str2  string `nxconfig:"NoLongerNested"`
+			Float float32 `default:"789.9"`
+			Str2  string  `name:"NoLongerNested"`
 		}{3.49, "bar"},
 	}
 

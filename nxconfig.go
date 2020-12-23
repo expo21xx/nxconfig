@@ -21,7 +21,9 @@ var ErrTargetNotAStruct = errors.New("target must be struct pointer")
 
 var durationType = reflect.ValueOf(time.Duration(0)).Type()
 
-const tagkey = "nxconfig"
+const nameTag = "name"
+const usageTag = "usage"
+const defaultTag = "default"
 
 // Load config values automatically from os.Environ() (no prefix) and os.Args[1:].
 func Load(target interface{}, opts ...Option) error {
@@ -85,10 +87,21 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 		}
 
 		name := fieldPrefix + elemType.Field(i).Name
+		usage := ""
 
-		tag, ok := elemType.Field(i).Tag.Lookup(tagkey)
-		if ok {
-			name = tag
+		if nameTag, ok := elemType.Field(i).Tag.Lookup(nameTag); ok {
+			name = nameTag
+		}
+
+		if usageTag, ok := elemType.Field(i).Tag.Lookup(usageTag); ok {
+			usage = usageTag
+		}
+
+		if defaultTag, ok := elemType.Field(i).Tag.Lookup(defaultTag); ok {
+			n := toUpperSnakeCase(name)
+			if _, ok := envmap[n]; !ok {
+				envmap[n] = defaultTag
+			}
 		}
 
 		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Struct {
@@ -99,7 +112,12 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 			continue
 		}
 
-		err := flagForValue(flagset, envmap, field, name)
+		envvalue, err := envValueForValue(envmap, field, name)
+		if err != nil {
+			return err
+		}
+
+		err = flagForValue(flagset, envvalue, usage, name, field)
 		if err != nil {
 			return err
 		}
@@ -108,43 +126,38 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 	return nil
 }
 
-func flagForValue(flagset *pflag.FlagSet, envmap map[string]string, val reflect.Value, name string) error {
+func flagForValue(flagset *pflag.FlagSet, defValue interface{}, usage string, name string, val reflect.Value) error {
 	flagName := toKebabCase(name)
-
-	defValue, err := envValueForValue(envmap, val, name)
-	if err != nil {
-		return err
-	}
 
 	switch val.Type() {
 	case durationType:
-		flagset.DurationVar(val.Addr().Interface().(*time.Duration), flagName, defValue.(time.Duration), name)
+		flagset.DurationVar(val.Addr().Interface().(*time.Duration), flagName, defValue.(time.Duration), usage)
 		return nil
 	}
 
 	switch val.Type().Kind() {
 	case reflect.String:
-		flagset.StringVar(val.Addr().Interface().(*string), flagName, defValue.(string), name)
+		flagset.StringVar(val.Addr().Interface().(*string), flagName, defValue.(string), usage)
 	case reflect.Int:
-		flagset.IntVar(val.Addr().Interface().(*int), flagName, defValue.(int), name)
+		flagset.IntVar(val.Addr().Interface().(*int), flagName, defValue.(int), usage)
 	case reflect.Int32:
-		flagset.Int32Var(val.Addr().Interface().(*int32), flagName, defValue.(int32), name)
+		flagset.Int32Var(val.Addr().Interface().(*int32), flagName, defValue.(int32), usage)
 	case reflect.Int64:
-		flagset.Int64Var(val.Addr().Interface().(*int64), flagName, defValue.(int64), name)
+		flagset.Int64Var(val.Addr().Interface().(*int64), flagName, defValue.(int64), usage)
 	case reflect.Uint:
-		flagset.UintVar(val.Addr().Interface().(*uint), flagName, defValue.(uint), name)
+		flagset.UintVar(val.Addr().Interface().(*uint), flagName, defValue.(uint), usage)
 	case reflect.Uint16:
-		flagset.Uint16Var(val.Addr().Interface().(*uint16), flagName, defValue.(uint16), name)
+		flagset.Uint16Var(val.Addr().Interface().(*uint16), flagName, defValue.(uint16), usage)
 	case reflect.Uint32:
-		flagset.Uint32Var(val.Addr().Interface().(*uint32), flagName, defValue.(uint32), name)
+		flagset.Uint32Var(val.Addr().Interface().(*uint32), flagName, defValue.(uint32), usage)
 	case reflect.Uint64:
-		flagset.Uint64Var(val.Addr().Interface().(*uint64), flagName, defValue.(uint64), name)
+		flagset.Uint64Var(val.Addr().Interface().(*uint64), flagName, defValue.(uint64), usage)
 	case reflect.Float32:
-		flagset.Float32Var(val.Addr().Interface().(*float32), flagName, defValue.(float32), name)
+		flagset.Float32Var(val.Addr().Interface().(*float32), flagName, defValue.(float32), usage)
 	case reflect.Float64:
-		flagset.Float64Var(val.Addr().Interface().(*float64), flagName, defValue.(float64), name)
+		flagset.Float64Var(val.Addr().Interface().(*float64), flagName, defValue.(float64), usage)
 	case reflect.Bool:
-		flagset.BoolVar(val.Addr().Interface().(*bool), flagName, defValue.(bool), name)
+		flagset.BoolVar(val.Addr().Interface().(*bool), flagName, defValue.(bool), usage)
 	}
 
 	return nil
