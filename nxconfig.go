@@ -90,6 +90,10 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 		usage := ""
 
 		if nameTag, ok := elemType.Field(i).Tag.Lookup(nameTag); ok {
+			if nameTag == "" {
+				continue
+			}
+
 			name = nameTag
 		}
 

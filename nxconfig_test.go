@@ -219,7 +219,8 @@ func TestLoadStructTags(t *testing.T) {
 		Str       string
 		Int       int `name:"Different"`
 		UInt      uint
-		NotMapped float64 `default:"89.7"`
+		NoValue   float64 `default:"89.7"`
+		NotMapped float64 `name:""`
 		Nested    struct {
 			Float float32 `default:"789.9"`
 			Str2  string  `name:"NoLongerNested"`
@@ -230,7 +231,8 @@ func TestLoadStructTags(t *testing.T) {
 		Str:       "foo",
 		Int:       -910,
 		UInt:      10,
-		NotMapped: 89.7,
+		NoValue:   89.7,
+		NotMapped: 0,
 		Nested: struct {
 			Float float32 `default:"789.9"`
 			Str2  string  `name:"NoLongerNested"`
@@ -243,6 +245,7 @@ func TestLoadStructTags(t *testing.T) {
 		"--different", "-910",
 		"--str", "foo",
 		"--override", "baz",
+		"--not-mapped", "59.2",
 		"--no-longer-nested", "bar",
 	}), WithEnv([]string{
 		"U_INT=10",
