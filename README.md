@@ -78,5 +78,5 @@ The currently supported types are:
 - `bool`
 - `time.Duration`
 
-More types will be added in future.
+More types will be added in future on a *need to implement* basis.
 
