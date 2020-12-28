@@ -162,6 +162,19 @@ func flagForValue(flagset *pflag.FlagSet, defValue interface{}, usage string, na
 		flagset.Float64Var(val.Addr().Interface().(*float64), flagName, defValue.(float64), usage)
 	case reflect.Bool:
 		flagset.BoolVar(val.Addr().Interface().(*bool), flagName, defValue.(bool), usage)
+	case reflect.Slice:
+		return flagForSliceValue(flagset, defValue, usage, name, val)
+	}
+
+	return nil
+}
+
+func flagForSliceValue(flagset *pflag.FlagSet, defValue interface{}, usage string, name string, val reflect.Value) error {
+	flagName := toKebabCase(name)
+
+	switch val.Type().Elem().Kind() {
+	case reflect.String:
+		flagset.StringSliceVar(val.Addr().Interface().(*[]string), flagName, defValue.([]string), usage)
 	}
 
 	return nil
@@ -238,9 +251,25 @@ func convertFromStr(in string, typ reflect.Type) (interface{}, error) {
 			return false, nil
 		}
 		return strconv.ParseBool(in)
+	case reflect.Slice:
+		return convertFromStrSlice(in, typ)
 	}
 
-	return nil, fmt.Errorf("don't know how to convert %v", typ.Name())
+	typName := typ.Name()
+	if typName == "" {
+		typName = typ.String()
+	}
+
+	return nil, fmt.Errorf("don't know how to convert %v", typName)
+}
+
+func convertFromStrSlice(in string, typ reflect.Type) (interface{}, error) {
+	switch typ.Elem().Kind() {
+	case reflect.String:
+		return strings.Split(in, ","), nil
+	}
+
+	return nil, fmt.Errorf("don't know how to convert []%v", typ.Elem().Name())
 }
 
 // inspired by https://gist.github.com/stoewer/fbe273b711e6a06315d19552dd4d33e6

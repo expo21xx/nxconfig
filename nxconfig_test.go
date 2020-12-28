@@ -14,6 +14,7 @@ func TestLoadFromEnv(t *testing.T) {
 		UInt      uint
 		NotMapped float64
 		Duration  time.Duration
+		StrSlice  []string
 		Nested    struct {
 			Float float32
 			Str2  string
@@ -26,6 +27,7 @@ func TestLoadFromEnv(t *testing.T) {
 		UInt:      10,
 		NotMapped: 0.0,
 		Duration:  time.Hour * 2,
+		StrSlice:  []string{"a", "b"},
 		Nested: struct {
 			Float float32
 			Str2  string
@@ -41,6 +43,7 @@ func TestLoadFromEnv(t *testing.T) {
 		"DURATION=2h",
 		"NESTED_FLOAT=3.49",
 		"NESTED_STR2=bar",
+		"STR_SLICE=a,b",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -95,6 +98,7 @@ func TestLoadFromArgs(t *testing.T) {
 		UInt      uint
 		NotMapped float64
 		Duration  time.Duration
+		StrSlice  []string
 		Nested    struct {
 			Float float32
 			Str2  string
@@ -107,6 +111,7 @@ func TestLoadFromArgs(t *testing.T) {
 		UInt:      10,
 		NotMapped: 0.0,
 		Duration:  time.Minute * 5,
+		StrSlice:  []string{"a", "b"},
 		Nested: struct {
 			Float float32
 			Str2  string
@@ -122,6 +127,7 @@ func TestLoadFromArgs(t *testing.T) {
 		"--duration", "5m",
 		"--nested-float", "3.49",
 		"--nested-str2", "bar",
+		"--str-slice=a,b",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -137,6 +143,7 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 		Int       int
 		UInt      uint
 		NotMapped float64
+		StrSlice  []string
 		Nested    struct {
 			Float float32
 			Str2  string
@@ -149,6 +156,7 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 		Int:       -910,
 		UInt:      10,
 		NotMapped: 0.0,
+		StrSlice:  []string{"b", "c"},
 		Nested: struct {
 			Float float32
 			Str2  string
@@ -162,10 +170,13 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 		"--str", "foo",
 		"--override", "baz",
 		"--nested-str2", "bar",
+		"--str-slice=b",
+		"--str-slice=c",
 	}), WithEnv([]string{
 		"OVERRIDE=wrong",
 		"U_INT=10",
 		"NESTED_FLOAT=3.49",
+		"STR_SLICE=a,b",
 	}))
 	if err != nil {
 		t.Fatal(err)
