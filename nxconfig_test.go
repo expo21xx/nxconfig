@@ -19,6 +19,9 @@ func TestLoadFromEnv(t *testing.T) {
 			Float float32
 			Str2  string
 		}
+		NestedPtr *struct {
+			Int int
+		}
 	}
 
 	expected := cfg{
@@ -32,6 +35,9 @@ func TestLoadFromEnv(t *testing.T) {
 			Float float32
 			Str2  string
 		}{3.49, "bar"},
+		NestedPtr: &struct {
+			Int int
+		}{89},
 	}
 
 	var input cfg
@@ -44,6 +50,7 @@ func TestLoadFromEnv(t *testing.T) {
 		"NESTED_FLOAT=3.49",
 		"NESTED_STR2=bar",
 		"STR_SLICE=a,b",
+		"NESTED_PTR_INT=89",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -62,6 +69,9 @@ func TestLoadFromEnvWithPrefix(t *testing.T) {
 			Float float32
 			Str2  string
 		}
+		NestedPtr *struct {
+			Int int
+		}
 	}
 
 	expected := cfg{
@@ -73,6 +83,9 @@ func TestLoadFromEnvWithPrefix(t *testing.T) {
 			Float float32
 			Str2  string
 		}{3.49, "bar"},
+		NestedPtr: &struct {
+			Int int
+		}{89},
 	}
 
 	var input cfg
@@ -83,6 +96,7 @@ func TestLoadFromEnvWithPrefix(t *testing.T) {
 		"PREFIX_U_INT=10",
 		"PREFIX_NESTED_FLOAT=3.49",
 		"PREFIX_NESTED_STR2=bar",
+		"PREFIX_NESTED_PTR_INT=89",
 	}), WithPrefix("PREFIX"))
 	if err != nil {
 		t.Fatal(err)
@@ -103,6 +117,9 @@ func TestLoadFromArgs(t *testing.T) {
 			Float float32
 			Str2  string
 		}
+		NestedPtr *struct {
+			Int int
+		}
 	}
 
 	expected := cfg{
@@ -116,6 +133,9 @@ func TestLoadFromArgs(t *testing.T) {
 			Float float32
 			Str2  string
 		}{3.49, "bar"},
+		NestedPtr: &struct {
+			Int int
+		}{89},
 	}
 
 	var input cfg
@@ -128,6 +148,7 @@ func TestLoadFromArgs(t *testing.T) {
 		"--nested-float", "3.49",
 		"--nested-str2", "bar",
 		"--str-slice=a,b",
+		"--nested-ptr-int", "89",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -148,6 +169,9 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 			Float float32
 			Str2  string
 		}
+		NestedPtr *struct {
+			Int int
+		}
 	}
 
 	expected := cfg{
@@ -161,6 +185,9 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 			Float float32
 			Str2  string
 		}{3.49, "bar"},
+		NestedPtr: &struct {
+			Int int
+		}{89},
 	}
 
 	var input cfg
@@ -172,11 +199,13 @@ func TestLoadFromArgsAndEnv(t *testing.T) {
 		"--nested-str2", "bar",
 		"--str-slice=b",
 		"--str-slice=c",
+		"--nested-ptr-int=89",
 	}), WithEnv([]string{
 		"OVERRIDE=wrong",
 		"U_INT=10",
 		"NESTED_FLOAT=3.49",
 		"STR_SLICE=a,b",
+		"NESTED_PTR_INT=87",
 	}))
 	if err != nil {
 		t.Fatal(err)
@@ -236,6 +265,9 @@ func TestLoadStructTags(t *testing.T) {
 			Float float32 `default:"789.9"`
 			Str2  string  `name:"NoLongerNested"`
 		}
+		NestedPtr *struct {
+			Int int `name:"ForPtrNested"`
+		}
 	}
 
 	expected := cfg{
@@ -248,6 +280,9 @@ func TestLoadStructTags(t *testing.T) {
 			Float float32 `default:"789.9"`
 			Str2  string  `name:"NoLongerNested"`
 		}{3.49, "bar"},
+		NestedPtr: &struct {
+			Int int `name:"ForPtrNested"`
+		}{89},
 	}
 
 	var input cfg
@@ -261,6 +296,7 @@ func TestLoadStructTags(t *testing.T) {
 	}), WithEnv([]string{
 		"U_INT=10",
 		"NESTED_FLOAT=3.49",
+		"FOR_PTR_NESTED=89",
 	}))
 	if err != nil {
 		t.Fatal(err)

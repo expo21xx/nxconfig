@@ -108,8 +108,21 @@ func loadIntoStruct(flagset *pflag.FlagSet, envmap map[string]string, fieldPrefi
 			}
 		}
 
-		if field.Kind() == reflect.Ptr || field.Kind() == reflect.Struct {
+		if field.Kind() == reflect.Struct {
 			err := loadIntoStruct(flagset, envmap, name, field.Addr())
+			if err != nil {
+				return err
+			}
+			continue
+		}
+
+		if field.Kind() == reflect.Ptr {
+			if field.Type().Elem().Kind() != reflect.Struct {
+				continue
+			}
+			field.Set(reflect.New(field.Type().Elem()))
+
+			err := loadIntoStruct(flagset, envmap, name, field)
 			if err != nil {
 				return err
 			}
